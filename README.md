@@ -42,4 +42,4 @@ Options:
   
   then run as a normal command line utility: cemplox --words <file>
 
-  example usage: 
+  example usage: cemplox --file words.txt -m 8 -M 10 --case --prepend (this applies a case transformation and prepends symbols, returning all combinations between 8 and 10 characters)
