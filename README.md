@@ -31,11 +31,15 @@ Options:
   install cargo if not installed
   
   clone repo ( git clone https://github.com/ayohae/cemplox )
+  
   build with: cargo build --release
   
   run inside repo directory with: cargo run --release
+  
   OR
+  
   install to path with cargo install --path /path/to/repo_directory 
+  
   then run as a normal command line utility: cemplox --words <file>
 
   example usage: 
