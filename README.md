@@ -1,3 +1,5 @@
+make big wordlists by applying transformations to words. best with one word or small wordlists.
+
 Usage: cemplox [OPTIONS] --file <FILE>
 
 Options:
