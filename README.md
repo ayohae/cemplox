@@ -2,6 +2,7 @@ make big wordlists by applying transformations to words. best with one word or s
 
 Usage: cemplox [OPTIONS] --file <FILE>
 
+
 Options:
 
   -f, --file <FILE>    path to a file containing words to transform
@@ -26,6 +27,9 @@ Options:
   
   -V, --version        Print version
 
+
+
+  example usage: cemplox --file words.txt -m 8 -M 10 --case --prepend (this applies a case transformation and prepends symbols, returning all combinations between 8 and 10 characters)
   
 
   installation:
@@ -44,4 +48,6 @@ Options:
   
   then run as a normal command line utility: cemplox --words <file>
 
-  example usage: cemplox --file words.txt -m 8 -M 10 --case --prepend (this applies a case transformation and prepends symbols, returning all combinations between 8 and 10 characters)
+  OR
+
+  download executable from releases
