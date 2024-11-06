@@ -1,10 +1,8 @@
-Generate in-depth wordlists based on base words. Best with one or few base words.
-
-Usage: cemplox [OPTIONS] --words <WORDS_FILE_PATH>
+Usage: cemplox [OPTIONS] --file <FILE>
 
 Options:
 
-  -w, --words <WORDS>  path to a file containing words to transform
+  -f, --file <FILE>    path to a file containing words to transform
   
   -m, --min <MIN>      minimum length of final words [default: 1]
   
@@ -25,6 +23,7 @@ Options:
   -h, --help           Print help
   
   -V, --version        Print version
+
   
 
   installation:
@@ -38,3 +37,5 @@ Options:
   OR
   install to path with cargo install --path /path/to/repo_directory 
   then run as a normal command line utility: cemplox --words <file>
+
+  example usage: 
