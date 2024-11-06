@@ -3,18 +3,21 @@ mod leet_combinations;
 mod character_combinations;
 
 use clap::Parser;
+use std::fs::File;
+use std::path::Path;
+use std::io::{self, BufRead};
 
 
-/// Simple program to greet a person
+/// this program generates in-depth wordlists
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
-    /// the word to transform
+    /// path to a file containing words to transform
     #[arg(short, long, required = true)]
-    word: String,
+    words: String,
 
     /// minimum length of final words
-    #[arg(short, long, default_value_t = 6)]
+    #[arg(short, long, default_value_t = 1)]
     min: u8,
 
     /// maximum length of final words
@@ -48,7 +51,20 @@ struct Args {
 
 fn main() {
     let args = Args::parse(); // get args from Clap
-    let mut word_variations = vec![args.word.clone()]; // start the vector of transformations
+
+    let path = Path::new(&args.words);
+    let file = File::open(&path).unwrap();
+    let reader = io::BufReader::new(file);
+
+    let mut word_variations: Vec<String> = Vec::new();
+
+    for line in reader.lines() {
+        let word = line.unwrap().clone();
+        word_variations.push(word);
+    }
+
+
+    //let mut word_variations = vec![args.words.clone()]; // start the vector of transformations
 
     if args.case { // if case transformations is true, then apply
         word_variations = word_variations.into_iter().flat_map(|w| case_combinations::case_combinations(&w)).collect();
@@ -75,9 +91,4 @@ fn main() {
             println!("{}", variation);
         }
     }
-
-
-
-
-
 }
