@@ -1,19 +1,31 @@
 Generate in-depth wordlists based on base words. Best with one or few base words.
 
-Usage: cemplox [OPTIONS] --words <WORDS>
+Usage: cemplox [OPTIONS] --words <WORDS_FILE_PATH>
 
 Options:
+
   -w, --words <WORDS>  path to a file containing words to transform
+  
   -m, --min <MIN>      minimum length of final words [default: 1]
+  
   -M, --max <MAX>      maximum length of final words [default: 8]
+  
   -l, --leet           do leet transformations
+  
   -c, --case           do case transformations
+  
   -a, --append         append characters option
+  
   -p, --prepend        prepend characters option
+  
   -i, --insert         insert characters option
+  
   -C, --chars <CHARS>  character set to use for app/pre/ins [default: "1234567890!@#$%^&*()-_=+[]{} "]
+  
   -h, --help           Print help
+  
   -V, --version        Print version
+  
 
   installation:
 
