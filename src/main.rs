@@ -14,7 +14,7 @@ use std::io::{self, BufRead};
 struct Args {
     /// path to a file containing words to transform
     #[arg(short, long, required = true)]
-    words: String,
+    file: String,
 
     /// minimum length of final words
     #[arg(short, long, default_value_t = 1)]
@@ -52,7 +52,7 @@ struct Args {
 fn main() {
     let args = Args::parse(); // get args from Clap
 
-    let path = Path::new(&args.words);
+    let path = Path::new(&args.file);
     let file = File::open(&path).unwrap();
     let reader = io::BufReader::new(file);
 
