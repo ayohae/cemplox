@@ -59,8 +59,10 @@ fn main() {
     let mut word_variations: Vec<String> = Vec::new();
 
     for line in reader.lines() {
-        let word = line.unwrap().clone();
-        word_variations.push(word);
+        match line {
+            Ok(valid_line) => word_variations.push(valid_line.clone()),
+            Err(_) => {},
+        }
     }
 
 
