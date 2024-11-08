@@ -1,10 +1,11 @@
-Generate in-depth wordlists based on base words. Best with one or few base words.
+make big wordlists by applying transformations to words. best with one word or small wordlists.
 
-Usage: cemplox [OPTIONS] --words <WORDS_FILE_PATH>
+Usage: cemplox [OPTIONS] --file <FILE>
+
 
 Options:
 
-  -w, --words <WORDS>  path to a file containing words to transform
+  -f, --file <FILE>    path to a file containing words to transform
   
   -m, --min <MIN>      minimum length of final words [default: 1]
   
@@ -25,6 +26,10 @@ Options:
   -h, --help           Print help
   
   -V, --version        Print version
+
+
+
+  example usage: cemplox --file words.txt -m 8 -M 10 --case --prepend (this applies a case transformation and prepends symbols, returning all combinations between 8 and 10 characters)
   
 
   installation:
@@ -32,9 +37,17 @@ Options:
   install cargo if not installed
   
   clone repo ( git clone https://github.com/ayohae/cemplox )
+  
   build with: cargo build --release
   
   run inside repo directory with: cargo run --release
+  
   OR
+  
   install to path with cargo install --path /path/to/repo_directory 
+  
   then run as a normal command line utility: cemplox --words <file>
+
+  OR
+
+  download executable from releases

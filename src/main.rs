@@ -66,7 +66,7 @@ fn main() {
     }
 
 
-    //let mut word_variations = vec![args.words.clone()]; // start the vector of transformations
+    // start the vector of transformations
 
     if args.case { // if case transformations is true, then apply
         word_variations = word_variations.into_iter().flat_map(|w| case_combinations::case_combinations(&w)).collect();
