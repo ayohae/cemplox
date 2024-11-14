@@ -6,7 +6,6 @@ use std::fs::File;
 use std::path::Path;
 use std::io::{self, BufRead};
 use rayon::prelude::*;
-use std::time::Instant;
 
 
 /// this program generates in-depth wordlists
@@ -51,7 +50,6 @@ struct Args {
 }
 
 fn main() {
-    let start = Instant::now();
     let args = Args::parse(); // get clap args
 
     let path = Path::new(&args.file);
@@ -101,6 +99,4 @@ fn main() {
                 println!("{}", variant);
             }
         });
-    let duration = start.elapsed();
-    println!("Time elapsed: {:?}", duration);
 }
