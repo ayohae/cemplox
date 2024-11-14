@@ -46,7 +46,7 @@ Options:
   
   install to path with cargo install --path /path/to/repo_directory 
   
-  then run as a normal command line utility: cemplox --words <file>
+  then run as a normal command line utility: cemplox --file <file>
 
   OR
 
