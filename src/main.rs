@@ -1,11 +1,11 @@
 mod case_combinations;
 mod leet_combinations;
 mod character_combinations;
-
 use clap::Parser;
 use std::fs::File;
 use std::path::Path;
 use std::io::{self, BufRead};
+use rayon::prelude::*;
 
 
 /// this program generates in-depth wordlists
@@ -50,47 +50,53 @@ struct Args {
 }
 
 fn main() {
-    let args = Args::parse(); // get args from Clap
+    let args = Args::parse(); // get clap args
 
     let path = Path::new(&args.file);
-    let file = File::open(&path).unwrap();
-    let reader = io::BufReader::new(file);
+    let file = File::open(&path).expect("Failed to open file"); // open file
+    let reader = io::BufReader::new(file); // read file
 
-    let mut word_variations: Vec<String> = Vec::new();
+    // read lines from the file
+    let word_variations: Vec<String> = reader
+        .lines()
+        .par_bridge()  // converts the iterator to a parallel bridge iterator
+        .filter_map(|line| line.ok())  // filter out errors
+        .collect();
 
-    for line in reader.lines() {
-        match line {
-            Ok(valid_line) => word_variations.push(valid_line.clone()),
-            Err(_) => {},
-        }
-    }
+    // apply transformations
+    let transformed_variations: Vec<String> = word_variations
+        .into_par_iter()
+        .flat_map(|word| {
+            let mut variants = vec![word.clone()];
 
+            if args.case {
+                variants.extend(case_combinations::case_combinations(&word));
+            }
+            if args.leet {
+                variants.extend(leet_combinations::leet_combinations(&word));
+            }
 
-    // start the vector of transformations
+            variants
+        })
+        .collect();
 
-    if args.case { // if case transformations is true, then apply
-        word_variations = word_variations.into_iter().flat_map(|w| case_combinations::case_combinations(&w)).collect();
-    }
+    // character addition transformations
+    transformed_variations
+        .par_iter()
+        .for_each(|variation| {
+            let final_variations = character_combinations::generate_char_variants(
+                variation,
+                &args.chars,
+                args.min.into(),
+                args.max.into(),
+                args.append,
+                args.prepend,
+                args.insert,
+            );
 
-    if args.leet { // if leet transformations is true, then apply
-        word_variations = word_variations.into_iter().flat_map(|w| leet_combinations::leet_combinations(&w)).collect();
-    }
-
-    // iterate through the leet and case variations, generate char variants for each
-    for variation in word_variations {
-        let final_variations = character_combinations::generate_char_variants(
-            &variation,
-            &args.chars,
-            args.min.into(),
-            args.max.into(),
-            args.append,
-            args.prepend,
-            args.insert,
-        );
-
-        // print out each variation, keeping chunks smaller
-        for variation in final_variations {
-            println!("{}", variation);
-        }
-    }
+            // print to stdout (for piping or redirection to a file)
+            for variant in final_variations {
+                println!("{}", variant);
+            }
+        });
 }

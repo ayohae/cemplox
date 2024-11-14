@@ -1,4 +1,7 @@
+use rayon::prelude::*;
 use std::collections::HashMap;
+use std::sync::Mutex;
+
 pub fn generate_char_variants(
     word: &str,
     chars: &str,
@@ -8,10 +11,10 @@ pub fn generate_char_variants(
     prepend: bool,
     insert: bool,
 ) -> Vec<String> {
-    // Memoization map to store intermediate results
-    let mut memo = HashMap::new();
+    // memo for storing results, using mutex because safety first!
+    let memo = Mutex::new(HashMap::new());
 
-    // function to handle transforms and memos
+    // function to handle transforms and storing in memo, using CLI args
     fn transform(
         word: &str,
         chars: &str,
@@ -20,50 +23,68 @@ pub fn generate_char_variants(
         append: bool,
         prepend: bool,
         insert: bool,
-        memo: &mut HashMap<String, Vec<String>>,
+        memo: &Mutex<HashMap<String, Vec<String>>>,
     ) -> Vec<String> {
-        // return result if in memo
-        if let Some(result) = memo.get(word) {
-            return result.clone();
-        }
-
-        // init result vec
         let mut results = Vec::new();
 
-        // return word if it's in the range
+        // return if in memo
+        {
+            let memo = memo.lock().unwrap();
+            if let Some(result) = memo.get(word) {
+                return result.clone();
+            }
+        }
+
+        // return if inside the specified character length range
         if word.len() >= min_len && word.len() <= max_len {
             results.push(word.to_string());
         }
 
-        // If the word length is less than max_len, apply transformations
+        // if under max character length, do trasnform
         if word.len() < max_len {
-            for ch in chars.chars() {
-                // recursion magic, then store the transformed word
-                if append {
-                    let appended = format!("{}{}", word, ch);
-                    results.extend(transform(&appended, chars, min_len, max_len, append, prepend, insert, memo));
-                }
+            let chars_vec: Vec<char> = chars.chars().collect(); // collect characters
 
-                if prepend {
-                    let prepended = format!("{}{}", ch, word);
-                    results.extend(transform(&prepended, chars, min_len, max_len, append, prepend, insert, memo));
-                }
+            // parallel transformations over characters vec
+            let transformed: Vec<Vec<String>> = chars_vec.par_iter()
+                .map(|&ch| {
+                    let mut local_results = Vec::new();
 
-                if insert {
-                    for i in 0..=word.len() {
-                        let mut new_word = word.to_string();
-                        new_word.insert(i, ch);
-                        results.extend(transform(&new_word, chars, min_len, max_len, append, prepend, insert, memo));
+                    // apply transformations (specified by user-supplied args)
+                    if append {
+                        let appended = format!("{}{}", word, ch);
+                        local_results.extend(transform(&appended, chars, min_len, max_len, append, prepend, insert, memo));
                     }
-                }
-            }
+
+                    if prepend {
+                        let prepended = format!("{}{}", ch, word);
+                        local_results.extend(transform(&prepended, chars, min_len, max_len, append, prepend, insert, memo));
+                    }
+
+                    if insert {
+                        for i in 0..=word.len() {
+                            let mut new_word = word.to_string();
+                            new_word.insert(i, ch);
+                            local_results.extend(transform(&new_word, chars, min_len, max_len, append, prepend, insert, memo));
+                        }
+                    }
+
+                    local_results
+                })
+                .collect(); // collect all results
+
+            // flatten all results
+            results.extend(transformed.into_iter().flatten());
         }
 
-        // store this result in memo
-        memo.insert(word.to_string(), results.clone());
+        // store in memo
+        {
+            let mut memo = memo.lock().unwrap();
+            memo.insert(word.to_string(), results.clone());
+        }
+
         results
     }
 
-    // Call the helper function to generate the word variants
-    transform(word, chars, min_len, max_len, append, prepend, insert, &mut memo)
+    // go agane
+    transform(word, chars, min_len, max_len, append, prepend, insert, &memo)
 }
