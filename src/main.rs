@@ -6,6 +6,7 @@ use std::fs::File;
 use std::path::Path;
 use std::io::{self, BufRead};
 use rayon::prelude::*;
+use std::time::Instant;
 
 
 /// this program generates in-depth wordlists
@@ -50,6 +51,7 @@ struct Args {
 }
 
 fn main() {
+    let start = Instant::now();
     let args = Args::parse(); // get clap args
 
     let path = Path::new(&args.file);
@@ -84,7 +86,7 @@ fn main() {
     transformed_variations
         .par_iter()
         .for_each(|variation| {
-            let final_variations = character_combinations::generate_char_variants(
+            let final_variations = character_combinations::character_combinations(
                 variation,
                 &args.chars,
                 args.min.into(),
@@ -99,4 +101,6 @@ fn main() {
                 println!("{}", variant);
             }
         });
+    let duration = start.elapsed();
+    println!("Time elapsed: {:?}", duration);
 }

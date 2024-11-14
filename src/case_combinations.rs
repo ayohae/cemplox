@@ -1,28 +1,20 @@
+use rayon::prelude::*;
+
 pub fn case_combinations(word: &str) -> Vec<String> {
-    let results;
+    let mut results = vec![String::new()]; // begin with empty string
 
-    // generate all variations through recursio
-    fn helper(word: &str, current: String) -> Vec<String> {
-        if word.is_empty() {
-            vec![current]
-        } else {
-            let first = word.chars().next().unwrap();
-            let rest = &word[1..];
+    for ch in word.chars() {
+        // collect transformations per character
+        let new_combinations: Vec<String> = results.par_iter()
+            .flat_map(|base| {
+                let lower = format!("{}{}", base, ch.to_lowercase());
+                let upper = format!("{}{}", base, ch.to_uppercase());
+                vec![lower, upper] // collect lowercase and uppercase transforms together
+            })
+            .collect();
 
-            // lowercase and uppercase transformation paths
-            let (lowercase_variations, uppercase_variations): (Vec<String>, Vec<String>) = rayon::join(
-                || helper(rest, format!("{}{}", current, first.to_lowercase())),
-                || helper(rest, format!("{}{}", current, first.to_uppercase())),
-            );
-
-            // combine both uppercase and lowercase paths
-            let mut all_variations = lowercase_variations;
-            all_variations.extend(uppercase_variations);
-            all_variations
-        }
+        results = new_combinations; // replace old results with the new transformed combinations
     }
 
-    // call helper recursion function to go agane
-    results = helper(word, String::new());
     results
 }
