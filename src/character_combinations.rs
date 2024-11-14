@@ -1,6 +1,6 @@
 use rayon::prelude::*;
-use std::collections::HashMap;
-use std::sync::Mutex;
+use dashmap::DashMap;
+use std::collections::VecDeque;
 
 pub fn character_combinations(
     word: &str,
@@ -11,53 +11,49 @@ pub fn character_combinations(
     prepend: bool,
     insert: bool,
 ) -> Vec<String> {
-    // memo to store computed results. mutex for thread safety.
-    let memo: Mutex<HashMap<String, Vec<String>>> = Mutex::new(HashMap::new());
+    // memo to store computed results, prevent duplication
+    let memo: DashMap<String, Vec<String>> = DashMap::new();
 
-    // vector to hold results
+    // results vector init
     let mut results = Vec::new();
 
-    // check memo first to avoid duplicate computationos
-    {
-        let memo = memo.lock().unwrap();
-        if let Some(cached) = memo.get(word) {
-            return cached.clone();
-        }
+    // Check memo first to avoid duplicate computations
+    if let Some(cached) = memo.get(word) {
+        return cached.clone(); // Return cached value if it exists
     }
 
-    // if current word is in range, add to results
+    // if word in range, add to results
     if word.len() >= min_len && word.len() <= max_len {
         results.push(word.to_string());
     }
 
-    // collect characters to a vec
+    // collect all characters in the word
     let chars_vec: Vec<char> = chars.chars().collect();
 
-    // transformations over all characters with par iterator
+    // transform all chars, par iterator
     let transformed: Vec<Vec<String>> = chars_vec.par_iter()
         .map(|&ch| {
             let mut local_results = Vec::new();
 
-            // iterate over the word and apply transforms, using a queue instead of recur
-            // transforms get pushed to the queue to go back through the transform process
-            // transforms stop happening if it reaches max length
-            let mut queue = vec![word.to_string()]; // start with the og word
+            // create de queue for intermediate results
+            let mut queue = VecDeque::new();
+            queue.push_back(word.to_string()); // Start with the original word
 
-            while let Some(current_word) = queue.pop() {
-                // apply transformations based on cli flags
+            while let Some(current_word) = queue.pop_front() {
+                // apply transformations based on CLI flags
                 if append {
                     let appended = format!("{}{}", current_word, ch);
                     if appended.len() <= max_len {
-                        queue.push(appended.clone());
-                        local_results.push(appended);
+                        queue.push_back(appended.clone()); // push to back of the deque
+                        local_results.push(appended); // push to results
                     }
                 }
 
                 if prepend {
                     let prepended = format!("{}{}", ch, current_word);
                     if prepended.len() <= max_len {
-                        queue.push(prepended.clone());
-                        local_results.push(prepended);
+                        queue.push_back(prepended.clone()); // push to back of the deque
+                        local_results.push(prepended); // push to results
                     }
                 }
 
@@ -66,8 +62,8 @@ pub fn character_combinations(
                         let mut new_word = current_word.clone();
                         new_word.insert(i, ch);
                         if new_word.len() <= max_len {
-                            queue.push(new_word.clone());
-                            local_results.push(new_word);
+                            queue.push_back(new_word.clone()); // push to back of the deque
+                            local_results.push(new_word); // push to results
                         }
                     }
                 }
@@ -80,11 +76,8 @@ pub fn character_combinations(
     // flatten all results
     results.extend(transformed.into_iter().flatten());
 
-    // store the results in memo
-    {
-        let mut memo = memo.lock().unwrap();
-        memo.insert(word.to_string(), results.clone());
-    }
+    // store the intermediate results in memo
+    memo.insert(word.to_string(), results.clone());
 
     results
 }
