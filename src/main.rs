@@ -49,6 +49,8 @@ struct Args {
     chars: String,
 }
 
+use std::collections::HashSet;
+
 fn main() {
     let args = Args::parse(); // get clap args
 
@@ -56,35 +58,38 @@ fn main() {
     let file = File::open(&path).expect("Failed to open file"); // open file
     let reader = io::BufReader::new(file); // read file
 
-    // read lines from the file
-    let word_variations: Vec<String> = reader
+    // read lines from file
+    let word_list: HashSet<String> = reader
         .lines()
-        .par_bridge()  // converts the iterator to a parallel bridge iterator
-        .filter_map(|line| line.ok())  // filter out errors
+        .par_bridge() // convert to par iterator
+        .filter_map(|line| line.ok()) // filter out errors
         .collect();
 
-    // apply transformations
-    let transformed_variations: Vec<String> = word_variations
-        .into_par_iter()
-        .flat_map(|word| {
-            let mut variants = vec![word.clone()];
+    // apply case transformations (if enabled)
+    let case_transformed_words: HashSet<String> = if args.case {
+        word_list
+            .into_par_iter()
+            .flat_map(|word| case_combinations::case_combinations(&word))
+            .collect()
+    } else {
+        word_list
+    };
 
-            if args.case {
-                variants.extend(case_combinations::case_combinations(&word));
-            }
-            if args.leet {
-                variants.extend(leet_combinations::leet_combinations(&word));
-            }
+    // apply leet transformations (if enabled)
+    let leet_transformed_words: HashSet<String> = if args.leet {
+        case_transformed_words
+            .into_par_iter()
+            .flat_map(|word| leet_combinations::leet_combinations(&word))
+            .collect()
+    } else {
+        case_transformed_words
+    };
 
-            variants
-        })
-        .collect();
-
-    // character addition transformations
-    transformed_variations
+    // apply character addition transformations
+    let final_variations: HashSet<String> = leet_transformed_words
         .par_iter()
-        .for_each(|variation| {
-            let final_variations = character_combinations::character_combinations(
+        .flat_map(|variation| {
+            character_combinations::character_combinations(
                 variation,
                 &args.chars,
                 args.min.into(),
@@ -92,11 +97,13 @@ fn main() {
                 args.append,
                 args.prepend,
                 args.insert,
-            );
+            )
+        })
+        .collect();
 
-            // print to stdout (for piping or redirection to a file)
-            for variant in final_variations {
-                println!("{}", variant);
-            }
-        });
+    // print all results variants
+    for variant in final_variations {
+        println!("{}", variant);
+    }
+
 }
