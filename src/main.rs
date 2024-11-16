@@ -6,6 +6,7 @@ use std::fs::File;
 use std::path::Path;
 use std::io::{self, BufRead};
 use rayon::prelude::*;
+use std::collections::HashSet;
 
 
 /// this program generates in-depth wordlists
@@ -49,7 +50,6 @@ struct Args {
     chars: String,
 }
 
-use std::collections::HashSet;
 
 fn main() {
     let args = Args::parse(); // get clap args
