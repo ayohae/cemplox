@@ -22,7 +22,7 @@ struct Args {
     min: u8,
 
     /// maximum length of final words
-    #[arg(short = 'M', long, default_value_t = 8)]
+    #[arg(short = 'M', long, default_value_t = 15)]
     max: u8,
 
     /// do leet transformations

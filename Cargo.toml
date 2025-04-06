@@ -4,6 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-clap = { version = "4.0", features = ["derive"] }
-rayon = "1.5"
+clap = { version = "4.5.35", features = ["derive"] }
+rayon = "1.10"
 dashmap = "6.1.0"
