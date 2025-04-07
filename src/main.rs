@@ -1,7 +1,7 @@
 mod case_combinations;
 mod leet_combinations;
 mod character_combinations;
-use clap::Parser;
+use clap::{Parser, Subcommand, Args};
 use std::fs::File;
 use std::path::Path;
 use std::io::{self, BufRead};
@@ -12,26 +12,44 @@ use std::collections::HashSet;
 /// this program generates in-depth wordlists
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
-struct Args {
+struct Cli {
     /// path to a file containing words to transform
     #[arg(short, long, required = true)]
     file: String,
 
-    /// minimum length of final words
-    #[arg(short, long, default_value_t = 1)]
-    min: u8,
+    /// path to the output file
+    #[arg(short, long, required = false)]
+    out_file: String,
 
-    /// maximum length of final words
-    #[arg(short = 'M', long, default_value_t = 15)]
-    max: u8,
+    /// sanitize the wordlist
+    #[arg(short, long)]
+    sanitize: bool,
+
 
     /// do leet transformations
     #[arg(short, long)]
     leet: bool,
 
+    #[command(subcommand)]
+    command: Commands,
+
     /// do case transformations
     #[arg(short, long)]
     case: bool,
+
+    /// character set to use for app/pre/ins
+    #[arg(short = 'C', long, default_value = "1234567890!@#$%^&*()-_=+[]{} ")]
+    chars: String,
+}
+#[derive(Args, Debug)]
+struct LengthArgs {
+    /// minimum length of final words
+    #[arg(short, long, default_value_t = 1)]
+    min: u8,
+
+    /// maximum length of final words
+    #[arg(short = 'M', long, default_value_t = 16)]
+    max: u8,
 
     /// append characters option
     #[arg(short, long)]
@@ -44,15 +62,31 @@ struct Args {
     /// insert characters option
     #[arg(short, long)]
     insert: bool,
-
-    /// character set to use for app/pre/ins
-    #[arg(short = 'C', long, default_value = "1234567890!@#$%^&*()-_=+[]{} ")]
-    chars: String,
 }
 
+#[derive(Args, Debug)]
+struct CountArgs {
+    /// append characters option
+    #[arg(short, long, default_value_t = 0)]
+    append: u8,
+
+    /// prepend characters option
+    #[arg(short, long, default_value_t = 0)]
+    prepend: u8,
+
+    /// insert characters option
+    #[arg(short, long, default_value_t = 0)]
+    insert: u8,
+}
+
+#[derive(Subcommand,Debug)]
+enum Commands {
+    Length(LengthArgs),
+    Count(CountArgs),
+}
 
 fn main() {
-    let args = Args::parse(); // get clap args
+    let args = Cli::parse(); // get clap args
 
     let path = Path::new(&args.file);
     let file = File::open(&path).expect("Failed to open file"); // open file
