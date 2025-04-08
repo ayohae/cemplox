@@ -3,9 +3,12 @@ improve and make big wordlists by applying transformations to words.
 Usage: cemplox.exe [OPTIONS] --file <FILE> [COMMAND]
 
 Commands:
-  length
-  count
-  help    Print this message or the help of the given subcommand(s)
+    
+    length (characters will be added based on final length of the word)
+    
+    count (characters will be added based on the number of requested additions)
+    
+    help    Print this message or the help of the given subcommand(s)
 
 Options:
   
@@ -62,6 +65,7 @@ cemplox --file [input wordlist file] count --append 1 : this takes in a wordlist
 
 cemplox --file [input wordlist file] -sl length --prepend -m 1 -M 8 : this takes in a wordlist file, sanitizes it, does all leetspeak transformations, then prepends characters until a maximum length of 8, and prints to stdout all words between length 1-8.
 
+  
   installation:
 
   install cargo if not installed
