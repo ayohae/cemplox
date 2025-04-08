@@ -2,6 +2,7 @@ mod case_combinations;
 mod leet_combinations;
 mod character_combinations;
 mod sanitize;
+mod output;
 
 use clap::{Parser, Subcommand, Args};
 use std::fs::File;
@@ -20,10 +21,10 @@ struct Cli {
 
     /// path to the output file
     #[arg(short, long, required = false)]
-    out_file: String,
+    out_file: Option<String>,
 
     /// sanitize the wordlist
-    #[arg(short, long)]
+    #[arg(short = 's', long)]
     sanitize: bool,
 
     /// do leet transformations
@@ -102,7 +103,7 @@ fn main() {
     let sanitized_word_list: HashSet<String> = if args.sanitize {
         word_list
             .into_par_iter()
-            .flat_map(|word| sanitize::sanitize_wordlist(&word))
+            .flat_map(|word| sanitize::sanitize_word(&word))
             .collect()
     } else {
         word_list
@@ -165,8 +166,6 @@ fn main() {
     };
 
     // print all results variants
-    for variant in final_variations {
-        println!("{}", variant);
-    }
+    output::output_results(final_variations, args.out_file).expect("TODO: panic message");
 
 }
