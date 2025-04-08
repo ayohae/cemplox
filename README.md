@@ -9,24 +9,24 @@ Commands:
 
 Options:
   
-  -f, --file <FILE>              path to a file containing words to transform
-  
-  -o, --out-file <OUT_FILE>      path to the output file
-  
-  -b, --batch-size <BATCH_SIZE>  how many words from the wordlist are processed at one time. lower if RAM consumption is too high. increase to increase processing time. you can safely raise this if you aren't doing many operations/transformations at the same time [default: 5]
-  
-  -s, --sanitize                 sanitize the wordlist
-  
-  
-  -l, --leet                     do leet transformations
-  
-  -c, --case                     do case transformations
-  
-  -C, --chars <CHARS>            character set to use for app/pre/ins [default: "1234567890!@#$%^&*()-_=+[]{} "]
-  
-  -h, --help                     Print help
-  
-  -V, --version                  Print version
+    -f, --file <FILE>              path to a file containing words to transform
+    
+    -o, --out-file <OUT_FILE>      path to the output file
+    
+    -b, --batch-size <BATCH_SIZE>  how many words from the wordlist are processed at one time. lower if RAM consumption is too high. increase to increase processing time. you can safely raise this if you aren't doing many operations/transformations at the same time [default: 5]
+    
+    -s, --sanitize                 sanitize the wordlist
+    
+    
+    -l, --leet                     do leet transformations
+    
+    -c, --case                     do case transformations
+    
+    -C, --chars <CHARS>            character set to use for app/pre/ins [default: "1234567890!@#$%^&*()-_=+[]{} "]
+    
+    -h, --help                     Print help
+    
+    -V, --version                  Print version
 
   
   Length Options:
