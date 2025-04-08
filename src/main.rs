@@ -25,7 +25,6 @@ struct Cli {
     #[arg(short, long)]
     sanitize: bool,
 
-
     /// do leet transformations
     #[arg(short, long)]
     leet: bool,
@@ -120,20 +119,40 @@ fn main() {
     };
 
     // apply character addition transformations
-    let final_variations: HashSet<String> = leet_transformed_words
-        .par_iter()
-        .flat_map(|variation| {
-            character_combinations::character_combinations(
-                variation,
-                &args.chars,
-                args.min.into(),
-                args.max.into(),
-                args.append,
-                args.prepend,
-                args.insert,
-            )
-        })
-        .collect();
+    let final_variations: HashSet<String> = match args.command {
+        Commands::Length(length_args) => {
+        leet_transformed_words
+            .par_iter()
+            .flat_map(|variation| {
+                character_combinations::length_character_combinations(
+                    variation,
+                    &args.chars,
+                    length_args.min.into(),
+                    length_args.max.into(),
+                    length_args.append,
+                    length_args.prepend,
+                    length_args.insert,
+                )
+            })
+            .collect()
+        }
+
+        Commands::Count(count_args) => {
+        leet_transformed_words
+            .par_iter()
+            .flat_map(|variation| {
+                character_combinations::count_character_combinations(
+                    variation,
+                    &args.chars,
+                    count_args.append.into(),
+                    count_args.prepend.into(),
+                    count_args.insert.into(),
+                )
+            })
+            .collect()
+        }
+
+    };
 
     // print all results variants
     for variant in final_variations {

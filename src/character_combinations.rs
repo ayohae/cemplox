@@ -2,7 +2,7 @@ use rayon::prelude::*;
 use dashmap::DashMap;
 use std::collections::VecDeque;
 
-pub fn character_combinations(
+pub fn length_character_combinations(
     word: &str,
     chars: &str,
     min_len: usize,
@@ -92,4 +92,14 @@ pub fn character_combinations(
     memo.insert(word.to_string(), results.clone());
 
     results
+}
+
+pub fn count_character_combinations(
+    word: &str,
+    chars: &str,
+    append: usize,
+    prepend: usize,
+    insert: usize,
+) {
+    todo!()
 }
