@@ -18,6 +18,21 @@ Options:
   -h, --help                     Print help
   -V, --version                  Print version
 
+  Length Options:
+    -m, --min <MIN>  minimum length of final words [default: 1]
+    -M, --max <MAX>  maximum length of final words [default: 16]
+    -a, --append     append characters option
+    -p, --prepend    prepend characters option
+    -i, --insert     insert characters option
+    -h, --help       Print help
+
+  Count Options:
+    -a, --append <APPEND>    append characters option [default: 0]
+    -p, --prepend <PREPEND>  prepend characters option [default: 0]
+    -i, --insert <INSERT>    insert characters option [default: 0]
+    -h, --help               Print help
+
+
 
 example usage:
 
