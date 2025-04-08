@@ -12,19 +12,20 @@ pub fn sanitize_word(word: &str) -> Vec<String> {
         }
     }
 
-    let mut results = vec![sanitized_word.clone()]; // Start with the base sanitized word
-
-    // Check for special characters and generate duplicates
     let special_chars: Vec<char> = "•!@#$%^&*()-_=+[]{}|;:'\",.<>/?`~\\ ".chars().collect();
-    if sanitized_word.chars().any(|c| special_chars.contains(&c)) {
-        let mut without_special = String::new();
-        for c in sanitized_word.chars() {
-            if !special_chars.contains(&c) {
-                without_special.push(c);
-            }
+    let mut stripped_sanitized = String::new();
+    for c in sanitized_word.chars() {
+        if !special_chars.contains(&c) {
+            stripped_sanitized.push(c);
         }
-        results.push(without_special);
     }
+    let stripped_sanitized = stripped_sanitized.trim().to_string();
+    let sanitized_word = sanitized_word.trim().to_string();
 
+    let mut results = vec![stripped_sanitized.clone()];
+
+    if stripped_sanitized != sanitized_word {
+        results.push(sanitized_word);
+    }
     results
 }
