@@ -67,9 +67,9 @@ this takes in a wordlist file and produces a sanitized wordlist with all possibl
 
 --------------------------
 
-cemplox --file [input wordlist file] count --append 1
+this takes in a wordlist file and appends 1 digit/special character to each of them and prints to stdout
 
-    this takes in a wordlist file and appends 1 digit/special character to each of them and prints to stdout
+    cemplox --file [input wordlist file] count --append 1
 
 --------------------------
 
@@ -82,19 +82,27 @@ cemplox --file [input wordlist file] -sl length --prepend -m 1 -M 8
   installation:
 
   install cargo if not installed
+
+      curl https://sh.rustup.rs -sSf | sh
   
-  clone repo ( git clone https://github.com/ayohae/cemplox )
+  clone repo:
   
-  build with: cargo build --release
+      git clone https://github.com/ayohae/cemplox
   
-  run inside repo directory with: cargo run --release
+  build with: 
+  
+      cargo build --release
+  
+  run inside repo directory with: 
+  
+      cargo run --release
   
   OR
   
-  install to path with cargo install --path /path/to/repo_directory 
+  install to PATH with
   
-  then run as a normal command line utility: cemplox --file [path/to/word/list]
-
-  OR
-
-  download executable from releases
+      cargo install --path /path/to/repo_directory 
+  
+  then run as a normal command line utility: 
+  
+      cemplox --file [path/to/word/list]
