@@ -61,12 +61,23 @@ Options:
 
 example usage:
 
-cemplox --file [input wordlist file] --out-file [output wordlist file] --leet --sanitize : this takes in a wordlist file and produces a sanitized wordlist with all possible leetspeak transformations and saves it to the outfile.
+this takes in a wordlist file and produces a sanitized wordlist with all possible leetspeak transformations and saves it to the outfile:
 
-cemplox --file [input wordlist file] count --append 1 : this takes in a wordlist file and appends 1 digit/special character to each of them and prints to stdout
+    cemplox --file [input wordlist file] --out-file [output wordlist file] --leet --sanitize
 
-cemplox --file [input wordlist file] -sl length --prepend -m 1 -M 8 : this takes in a wordlist file, sanitizes it, does all leetspeak transformations, then prepends characters until a maximum length of 8, and prints to stdout all words between length 1-8.
+--------------------------
 
+cemplox --file [input wordlist file] count --append 1
+
+    this takes in a wordlist file and appends 1 digit/special character to each of them and prints to stdout
+
+--------------------------
+
+cemplox --file [input wordlist file] -sl length --prepend -m 1 -M 8
+
+    this takes in a wordlist file, sanitizes it, does all leetspeak transformations, then prepends characters until a maximum length of 8, and prints to stdout all words between length 1-8.
+
+--------------------------
   
   installation:
 
