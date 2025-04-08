@@ -86,29 +86,7 @@ enum Commands {
     Count(CountArgs),
 }
 
-fn main() {
-    let args = Cli::parse(); // get clap args
-
-    let path = Path::new(&args.file);
-    let file = File::open(&path).expect("Failed to open file"); // open file
-    let reader = io::BufReader::new(file); // read file
-
-    // read lines from file
-    let word_list: HashSet<String> = reader
-        .lines()
-        .par_bridge() // convert to par iterator
-        .filter_map(|line| line.ok()) // filter out errors
-        .collect();
-
-    let sanitized_word_list: HashSet<String> = if args.sanitize {
-        word_list
-            .into_par_iter()
-            .flat_map(|word| sanitize::sanitize_word(&word))
-            .collect()
-    } else {
-        word_list
-    };
-
+fn process_transformations(sanitized_word_list:HashSet<String>, args: &Cli) -> HashSet<String> {
     // apply case transformations (if enabled)
     let case_transformed_words: HashSet<String> = if args.case {
         sanitized_word_list
@@ -130,42 +108,69 @@ fn main() {
     };
 
     // apply character addition transformations
-    let final_variations: HashSet<String> = match args.command {
+    let final_variations: HashSet<String> = match &args.command {
         Some(Commands::Length(length_args)) => {
-        leet_transformed_words
-            .par_iter()
-            .flat_map(|variation| {
-                character_combinations::length_character_combinations(
-                    variation,
-                    &args.chars,
-                    length_args.min.into(),
-                    length_args.max.into(),
-                    length_args.append,
-                    length_args.prepend,
-                    length_args.insert,
-                )
-            })
-            .collect()
+            leet_transformed_words
+                .par_iter()
+                .flat_map(|variation| {
+                    character_combinations::length_character_combinations(
+                        variation,
+                        &args.chars,
+                        length_args.min.into(),
+                        length_args.max.into(),
+                        length_args.append,
+                        length_args.prepend,
+                        length_args.insert,
+                    )
+                })
+                .collect()
         }
 
         Some(Commands::Count(count_args)) => {
-        leet_transformed_words
-            .par_iter()
-            .flat_map(|variation| {
-                character_combinations::count_character_combinations(
-                    variation,
-                    &args.chars,
-                    count_args.append.into(),
-                    count_args.prepend.into(),
-                    count_args.insert.into(),
-                )
-            })
-            .collect()
+            leet_transformed_words
+                .par_iter()
+                .flat_map(|variation| {
+                    character_combinations::count_character_combinations(
+                        variation,
+                        &args.chars,
+                        count_args.append.into(),
+                        count_args.prepend.into(),
+                        count_args.insert.into(),
+                    )
+                })
+                .collect()
         }
 
         None => leet_transformed_words
 
     };
+
+    final_variations
+}
+
+fn main() {
+    let args = Cli::parse(); // get clap args
+    let path = Path::new(&args.file);
+    let file = File::open(&path).expect("Failed to open file"); // open file
+    let reader = io::BufReader::new(file); // read file
+
+    // read lines from file
+    let word_list: HashSet<String> = reader
+        .lines()
+        .par_bridge() // convert to par iterator
+        .filter_map(|line| line.ok()) // filter out errors
+        .collect();
+
+    let sanitized_word_list: HashSet<String> = if args.sanitize {
+        word_list
+            .into_par_iter()
+            .flat_map(|word| sanitize::sanitize_word(&word))
+            .collect()
+    } else {
+        word_list
+    };
+
+    let final_variations: HashSet<String> = process_transformations(sanitized_word_list, &args);
 
     // print all results variants
     output::output_results(final_variations, args.out_file).expect("Error with output file.");

@@ -1,7 +1,6 @@
 use std::fs::File;
 use std::io::{self, BufWriter, Write, stdout};
 
-// Assuming final_variations is a Vec<String> or HashSet<String>
 pub(crate) fn output_results(final_variations: impl IntoIterator<Item = String>, out_file: Option<String>) -> io::Result<()> {
     match out_file {
         Some(file_path) => {
