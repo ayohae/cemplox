@@ -9,7 +9,6 @@ use std::path::Path;
 use std::io::{self, BufRead};
 use rayon::prelude::*;
 use std::collections::HashSet;
-use crate::sanitize::sanitize_wordlist;
 
 /// this program generates in-depth wordlists
 #[derive(Parser, Debug)]
