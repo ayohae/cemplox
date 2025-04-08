@@ -166,6 +166,6 @@ fn main() {
     };
 
     // print all results variants
-    output::output_results(final_variations, args.out_file).expect("TODO: panic message");
+    output::output_results(final_variations, args.out_file).expect("Error with output file.");
 
 }
