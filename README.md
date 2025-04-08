@@ -9,7 +9,9 @@ Commands:
 
 Options:
   -f, --file <FILE>              path to a file containing words to transform
+  
   -o, --out-file <OUT_FILE>      path to the output file
+  
   -b, --batch-size <BATCH_SIZE>  how many words from the wordlist are processed at one time. lower if RAM consumption is too high. increase to increase processing time. you can safely raise this if you aren't doing many operations/transformations at the same time [default: 5]
   -s, --sanitize                 sanitize the wordlist
   -l, --leet                     do leet transformations
