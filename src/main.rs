@@ -1,13 +1,15 @@
 mod case_combinations;
 mod leet_combinations;
 mod character_combinations;
+mod sanitize;
+
 use clap::{Parser, Subcommand, Args};
 use std::fs::File;
 use std::path::Path;
 use std::io::{self, BufRead};
 use rayon::prelude::*;
 use std::collections::HashSet;
-
+use crate::sanitize::sanitize_wordlist;
 
 /// this program generates in-depth wordlists
 #[derive(Parser, Debug)]
@@ -98,14 +100,23 @@ fn main() {
         .filter_map(|line| line.ok()) // filter out errors
         .collect();
 
+    let sanitized_word_list: HashSet<String> = if args.sanitize {
+        word_list
+            .into_par_iter()
+            .flat_map(|word| sanitize::sanitize_wordlist(&word))
+            .collect()
+    } else {
+        word_list
+    };
+
     // apply case transformations (if enabled)
     let case_transformed_words: HashSet<String> = if args.case {
-        word_list
+        sanitized_word_list
             .into_par_iter()
             .flat_map(|word| case_combinations::case_combinations(&word))
             .collect()
     } else {
-        word_list
+        sanitized_word_list
     };
 
     // apply leet transformations (if enabled)

@@ -100,6 +100,39 @@ pub fn count_character_combinations(
     append: usize,
     prepend: usize,
     insert: usize,
-) {
-    todo!()
+) -> Vec<String> {
+    let mut results = Vec::new();
+    let chars_vec: Vec<char> = chars.chars().collect();
+    let mut queue = VecDeque::new();
+    queue.push_back((word.to_string(), append, prepend, insert));
+
+    while let Some((current_word, current_append, current_prepend, current_insert)) = queue.pop_front() {
+        results.push(current_word.clone());
+
+        if current_append > 0 {
+            for &ch in &chars_vec {
+                let appended = format!("{}{}", current_word, ch);
+                queue.push_back((appended, current_append - 1, current_prepend, current_insert));
+            }
+        }
+
+        if current_prepend > 0 {
+            for &ch in &chars_vec {
+                let prepended = format!("{}{}", ch, current_word);
+                queue.push_back((prepended, current_append, current_prepend - 1, current_insert));
+            }
+        }
+
+        if current_insert > 0 {
+            for &ch in &chars_vec {
+                for i in 0..=current_word.len() {
+                    let mut inserted = current_word.clone();
+                    inserted.insert(i, ch);
+                    queue.push_back((inserted, current_append, current_prepend, current_insert - 1));
+                }
+            }
+        }
+    }
+
+    results
 }
