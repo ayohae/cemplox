@@ -32,7 +32,7 @@ struct Cli {
     leet: bool,
 
     #[command(subcommand)]
-    command: Commands,
+    command: Option<Commands>,
 
     /// do case transformations
     #[arg(short, long)]
@@ -131,7 +131,7 @@ fn main() {
 
     // apply character addition transformations
     let final_variations: HashSet<String> = match args.command {
-        Commands::Length(length_args) => {
+        Some(Commands::Length(length_args)) => {
         leet_transformed_words
             .par_iter()
             .flat_map(|variation| {
@@ -148,7 +148,7 @@ fn main() {
             .collect()
         }
 
-        Commands::Count(count_args) => {
+        Some(Commands::Count(count_args)) => {
         leet_transformed_words
             .par_iter()
             .flat_map(|variation| {
@@ -162,6 +162,8 @@ fn main() {
             })
             .collect()
         }
+
+        None => leet_transformed_words
 
     };
 
