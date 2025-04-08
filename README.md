@@ -1,6 +1,8 @@
 improve and make big wordlists by applying transformations to words. 
 
-Usage: cemplox.exe [OPTIONS] --file <FILE> [COMMAND]
+Usage: 
+
+    cemplox.exe [OPTIONS] --file <FILE> [COMMAND]
 
 Commands:
     
