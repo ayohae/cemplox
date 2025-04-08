@@ -73,9 +73,9 @@ this takes in a wordlist file and appends 1 digit/special character to each of t
 
 --------------------------
 
-cemplox --file [input wordlist file] -sl length --prepend -m 1 -M 8
+this takes in a wordlist file, sanitizes it, does all leetspeak transformations, then prepends characters until a maximum length of 8, and prints to stdout all words between length 1-8.
 
-    this takes in a wordlist file, sanitizes it, does all leetspeak transformations, then prepends characters until a maximum length of 8, and prints to stdout all words between length 1-8.
+    cemplox --file [input wordlist file] -sl length --prepend -m 1 -M 8
 
 --------------------------
   
