@@ -2,7 +2,6 @@ mod case_combinations;
 mod leet_combinations;
 mod character_combinations;
 mod sanitize;
-mod output;
 
 use clap::{Parser, Subcommand, Args};
 use std::fs::{File, OpenOptions};
@@ -23,6 +22,12 @@ struct Cli {
     #[arg(short, long, required = false)]
     out_file: Option<String>,
 
+    /// how many words from the wordlist are processed at one time.
+    /// lower if RAM consumption is too high. increase to increase processing time.
+    /// you can safely raise this if you aren't doing many operations/transformations at the same time.
+    #[arg(short = 'b', long, default_value_t = 5)]
+    batch_size: usize,
+
     /// sanitize the wordlist
     #[arg(short = 's', long)]
     sanitize: bool,
@@ -30,9 +35,6 @@ struct Cli {
     /// do leet transformations
     #[arg(short, long)]
     leet: bool,
-
-    #[command(subcommand)]
-    command: Option<Commands>,
 
     /// do case transformations
     #[arg(short, long)]
@@ -42,10 +44,11 @@ struct Cli {
     #[arg(short = 'C', long, default_value = "1234567890!@#$%^&*()-_=+[]{} ")]
     chars: String,
 
-    /// how many words from the wordlist are processed at one time.
-    /// lower if RAM consumption is too high. increase to increase processing time.
-    #[arg(short = 'b', long, default_value_t = 5)]
-    batch_size: usize,
+    /// choose between adding characters based on count or desired length of output
+    #[command(subcommand)]
+    command: Option<Commands>,
+
+
 }
 #[derive(Args, Debug)]
 struct LengthArgs {
