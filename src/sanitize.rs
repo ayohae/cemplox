@@ -12,7 +12,7 @@ pub fn sanitize_word(word: &str) -> Vec<String> {
         }
     }
 
-    let special_chars: Vec<char> = "•!@#$%^&*()-_=+[]{}|;:'\",.<>/?`~\\ ".chars().collect();
+    let special_chars: Vec<char> = "•!@#$%^&*()-_=+[]{}|;:'\",.<>/?`~\\     ".chars().collect();
     let mut stripped_sanitized = String::new();
     for c in sanitized_word.chars() {
         if !special_chars.contains(&c) {
@@ -22,10 +22,15 @@ pub fn sanitize_word(word: &str) -> Vec<String> {
     let stripped_sanitized = stripped_sanitized.trim().to_string();
     let sanitized_word = sanitized_word.trim().to_string();
 
-    let mut results = vec![stripped_sanitized.clone()];
+    let mut results = vec![]; // Start with empty results vector
 
-    if stripped_sanitized != sanitized_word {
+    if stripped_sanitized.len() <= 16 {
+        results.push(stripped_sanitized.clone());
+    }
+
+    if stripped_sanitized != sanitized_word && sanitized_word.len() <= 16 {
         results.push(sanitized_word);
     }
+
     results
 }
