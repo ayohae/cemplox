@@ -5,9 +5,9 @@ mod sanitize;
 mod output;
 
 use clap::{Parser, Subcommand, Args};
-use std::fs::File;
+use std::fs::{File, OpenOptions};
 use std::path::Path;
-use std::io::{self, BufRead};
+use std::io::{self, BufRead, BufReader, BufWriter, Write, stdout};
 use rayon::prelude::*;
 use std::collections::HashSet;
 
@@ -41,6 +41,11 @@ struct Cli {
     /// character set to use for app/pre/ins
     #[arg(short = 'C', long, default_value = "1234567890!@#$%^&*()-_=+[]{} ")]
     chars: String,
+
+    /// how many words from the wordlist are processed at one time.
+    /// lower if RAM consumption is too high. increase to increase processing time.
+    #[arg(short = 'b', long, default_value_t = 5)]
+    batch_size: usize,
 }
 #[derive(Args, Debug)]
 struct LengthArgs {
@@ -148,31 +153,59 @@ fn process_transformations(sanitized_word_list:HashSet<String>, args: &Cli) -> H
     final_variations
 }
 
-fn main() {
-    let args = Cli::parse(); // get clap args
-    let path = Path::new(&args.file);
-    let file = File::open(&path).expect("Failed to open file"); // open file
-    let reader = io::BufReader::new(file); // read file
-
-    // read lines from file
-    let word_list: HashSet<String> = reader
-        .lines()
-        .par_bridge() // convert to par iterator
-        .filter_map(|line| line.ok()) // filter out errors
-        .collect();
-
-    let sanitized_word_list: HashSet<String> = if args.sanitize {
-        word_list
-            .into_par_iter()
-            .flat_map(|word| sanitize::sanitize_word(&word))
-            .collect()
+fn process_and_write_batch(batch: &[String], args: &Cli, output: &mut Box<dyn Write>) -> io::Result<()> {
+    let sanitized_batch: Vec<String> = if args.sanitize {
+        batch.par_iter().flat_map(|word| sanitize::sanitize_word(word)).collect()
     } else {
-        word_list
+        batch.to_vec()
     };
 
-    let final_variations: HashSet<String> = process_transformations(sanitized_word_list, &args);
+    let final_variations: HashSet<String> = process_transformations(sanitized_batch.into_iter().collect(), args);
 
-    // print all results variants
-    output::output_results(final_variations, args.out_file).expect("Error with output file.");
+    for variant in final_variations {
+        writeln!(output, "{}", variant)?;
+    }
 
+    Ok(())
 }
+
+fn main() -> io::Result<()> {
+    let args = Cli::parse(); // get clap args
+
+    let path = Path::new(&args.file);
+    let file = File::open(&path)?;
+    let reader = BufReader::new(file);
+    let mut lines = reader.lines();
+
+    let mut output: Box<dyn Write> = match args.out_file.clone() {
+        Some(path) => {
+            let file = OpenOptions::new()
+                .write(true)
+                .append(true)
+                .create(true)
+                .open(path)?;
+            Box::new(BufWriter::new(file))
+        }
+        None => Box::new(stdout().lock()),
+    };
+
+    let batch_size = args.batch_size;
+    let mut batch = Vec::with_capacity(batch_size);
+
+    while let Some(line) = lines.next() {
+        batch.push(line?);
+
+        if batch.len() == batch_size {
+            process_and_write_batch(&batch, &args, &mut output)?;
+            batch.clear();
+        }
+    }
+
+    if !batch.is_empty() {
+        process_and_write_batch(&batch, &args, &mut output)?;
+    }
+
+    Ok(())
+}
+
+
