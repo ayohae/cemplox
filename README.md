@@ -79,30 +79,30 @@ this takes in a wordlist file, sanitizes it, does all leetspeak transformations,
 
 --------------------------
   
-  installation:
+installation:
 
-  install cargo if not installed
+install cargo if not installed
 
-      curl https://sh.rustup.rs -sSf | sh
-  
-  clone repo:
-  
-      git clone https://github.com/ayohae/cemplox
-  
-  build with: 
-  
-      cargo build --release
-  
-  run inside repo directory with: 
-  
-      cargo run --release
-  
-  OR
-  
-  install to PATH with
-  
-      cargo install --path /path/to/repo_directory 
-  
-  then run as a normal command line utility: 
-  
-      cemplox --file [path/to/word/list]
+    curl https://sh.rustup.rs -sSf | sh
+
+clone repo:
+
+    git clone https://github.com/ayohae/cemplox
+
+build with: 
+
+    cargo build --release
+
+run inside repo directory with: 
+
+    cargo run --release
+
+OR
+
+install to PATH with
+
+    cargo install --path /path/to/repo_directory 
+
+then run as a normal command line utility: 
+
+    cemplox --file [path/to/word/list]
