@@ -1,3 +1,5 @@
+/// sanitize mod
+/// sanitize a word in the wordlist, then keep original and sanitized word
 pub fn sanitize_word(word: &str) -> Vec<String> {
     let mut sanitized_word = String::new();
     let mut in_parentheses = false;
@@ -12,6 +14,7 @@ pub fn sanitize_word(word: &str) -> Vec<String> {
         }
     }
 
+    // Characters that we want to strip out
     let special_chars: Vec<char> = "•!@#$%^&*()-_=+[]{}|;:'\",.<>/?`~\\     ".chars().collect();
     let mut stripped_sanitized = String::new();
     for c in sanitized_word.chars() {
@@ -22,7 +25,7 @@ pub fn sanitize_word(word: &str) -> Vec<String> {
     let stripped_sanitized = stripped_sanitized.trim().to_string();
     let sanitized_word = sanitized_word.trim().to_string();
 
-    let mut results = vec![]; // Start with empty results vector
+    let mut results = vec![];
 
     if stripped_sanitized.len() <= 16 {
         results.push(stripped_sanitized.clone());
