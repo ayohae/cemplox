@@ -1,61 +1,68 @@
 improve and make big wordlists by applying transformations to words. 
 
-Usage: 
-
-    cemplox.exe [OPTIONS] --file <FILE> [COMMAND]
+Usage: cemplox.exe [OPTIONS] --file <FILE> [COMMAND]
 
 Commands:
-    
-    length (characters will be added based on final length of the word)
-    
-    count (characters will be added based on the number of requested additions)
-    
-    help    Print this message or the help of the given subcommand(s)
+
+      length
+      
+      count
+      help    Print this message or the help of the given subcommand(s)
 
 Options:
-  
-    -f, --file <FILE>              path to a file containing words to transform
-    
-    -o, --out-file <OUT_FILE>      path to the output file
-    
-    -b, --batch-size <BATCH_SIZE>  how many words from the wordlist are processed at one time. lower if RAM consumption is too high. increase to increase processing time. you can safely raise this if you aren't doing many operations/transformations at the same time [default: 5]
-    
-    -s, --sanitize                 sanitize the wordlist
-    
-    
-    -l, --leet                     do leet transformations
-    
-    -c, --case                     do case transformations
-    
-    -C, --chars <CHARS>            character set to use for app/pre/ins [default: "1234567890!@#$%^&*()-_=+[]{} "]
-    
-    -h, --help                     Print help
-    
-    -V, --version                  Print version
 
-  
-  Length Options:
-    
-    -m, --min <MIN>  minimum length of final words [default: 1]
-    
-    -M, --max <MAX>  maximum length of final words [default: 16]
-    -a, --append     append characters option
-    
-    -p, --prepend    prepend characters option
-    
-    -i, --insert     insert characters option
-    
-    -h, --help       Print help
+      -f, --file <FILE>                path to a input wordlist file
+      
+      -o, --out-file <OUT_FILE>        path to the output file. if not provided, output is written stdout
+      
+      -b, --batch-size <BATCH_SIZE>    number of input words processed at one time. (smaller batches lower RAM usage) [default: 5]
+      
+      -s, --sanitize                   sanitize the wordlist (trim and remove special chars), leaving a copy of the original
+      
+      -l, --leet                       apply leetspeak transforms
+      
+      -c, --case                       apply case transforms (lower to upper, upper to lower)
+      
+      -C, --chars <CHARS>              character set used for additional character transforms [default: "1234567890!@#$%^&*()-_=+[]{} "]
+      
+      -t, --tempfile-mode              enable tempfiles to reduce RAM usage
+      
+          --max-threads <MAX_THREADS>  max number of threads for parallel processing, # of cpu cores by default [default: 20]
+          
+          --dry-run                    dryrun mode. estimate counts without running
+          
+      -L, --log-level <LOG_LEVEL>      log level (error, warn, info, debug, trace) [default: info]
+      
+      -h, --help                       Print help
+      
+      -V, --version                    Print version
 
-  Count Options:
-    
-    -a, --append <APPEND>    append characters option [default: 0]
-    
-    -p, --prepend <PREPEND>  prepend characters option [default: 0]
-    
-    -i, --insert <INSERT>    insert characters option [default: 0]
-    
-    -h, --help               Print help
+
+Length Options:
+
+      -m, --min <MIN>  min length of output words [default: 1]
+      
+      -M, --max <MAX>  max length of output words [default: 16]
+      
+      -a, --append     append mode
+      
+      -p, --prepend    prepend mode
+      
+      -i, --insert     insert mode (very expensive, use with caution)
+      
+      -h, --help       Print help
+
+
+Count Options:
+
+      -a, --append <APPEND>    append this number of characters [default: 0]
+      
+      -p, --prepend <PREPEND>  prepend this number of characters [default: 0]
+      
+      -i, --insert <INSERT>    insert this number of characters (very expensive, use with caution) [default: 0]
+      
+      -h, --help               Print help
+
 
 
 
