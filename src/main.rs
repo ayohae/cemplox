@@ -193,7 +193,7 @@ fn process_batch(batch: &[String], args: &Cli) -> HashSet<String> {
     final_variations
 }
 
-/// Merge results from multiple temporary files into the final output destination.
+/// merge results from multiple tempfiles into the final output file
 fn merge_tempfiles(temp_files: Vec<NamedTempFile>, args: &Cli) -> io::Result<()> {
     info!("merging temporary files.........");
     let mut merged_set = HashSet::new();
