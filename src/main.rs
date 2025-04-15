@@ -1,7 +1,7 @@
 use anyhow::Result;
 use clap::{Parser, Subcommand, Args};
 use env_logger;
-use log::{info, debug};
+use log::{info};
 use num_cpus;
 use rayon::prelude::*;
 use std::collections::HashSet;
@@ -9,7 +9,7 @@ use std::fs::{File, OpenOptions};
 use std::io::{self, BufRead, BufReader, BufWriter, Write, stdout};
 use std::path::Path;
 use std::time::Instant;
-use tempfile::NamedTempFile;
+use tempfile::{NamedTempFile, TempPath};
 
 // Import our transformation modules.
 mod case_combinations;
@@ -194,12 +194,13 @@ fn process_batch(batch: &[String], args: &Cli) -> HashSet<String> {
 }
 
 /// merge results from multiple tempfiles into the final output file
-fn merge_tempfiles(temp_files: Vec<NamedTempFile>, args: &Cli) -> io::Result<()> {
-    info!("merging temporary files.........");
+fn merge_tempfiles(temp_paths: Vec<tempfile::TempPath>, args: &Cli) -> io::Result<()> {
+    info!("merging tempfiles...");
     let mut merged_set = HashSet::new();
 
-    for mut temp in temp_files {
-        let file = temp.reopen()?; // Reopen the tempfile
+    for temp_path in temp_paths {
+        // Open each temporary file from its path.
+        let file = File::open(&temp_path)?;
         let reader = BufReader::new(file);
         for line in reader.lines() {
             let line = line?;
@@ -207,13 +208,13 @@ fn merge_tempfiles(temp_files: Vec<NamedTempFile>, args: &Cli) -> io::Result<()>
         }
     }
 
-    info!("merged tempfiles. total of {} unique variations.", merged_set.len());
+    info!("merged total of {} unique variations", merged_set.len());
     if args.dry_run {
-        info!("dryrun enabled; skipping output.");
+        info!("dryrun enabled. skipping output.");
         return Ok(());
     }
 
-    // Write the merged unique variations to the final destination.
+    // write the merged variations
     let mut output: Box<dyn Write> = match &args.out_file {
         Some(path) => {
             let file = OpenOptions::new()
@@ -232,6 +233,7 @@ fn merge_tempfiles(temp_files: Vec<NamedTempFile>, args: &Cli) -> io::Result<()>
 
     Ok(())
 }
+
 
 fn main() -> Result<()> {
     let args = Cli::parse();
@@ -258,6 +260,7 @@ fn main() -> Result<()> {
     // Depending on the tempfile_mode flag, either process in memory or via temporary files.
     if args.tempfile_mode {
         info!("running in tempfile mode to reduce memory usage.");
+        let mut temp_paths: Vec<TempPath> = Vec::new();
         let mut temp_files = Vec::new();
         let batch_size = args.batch_size;
         let mut batch = Vec::with_capacity(batch_size);
@@ -274,7 +277,8 @@ fn main() -> Result<()> {
                         writeln!(writer, "{}", variant)?;
                     }
                 }
-                temp_files.push(temp_file);
+                let temp_path = temp_file.into_temp_path();
+                temp_files.push(temp_path);
                 batch.clear();
             }
         }
@@ -287,9 +291,10 @@ fn main() -> Result<()> {
                     writeln!(writer, "{}", variant)?;
                 }
             }
-            temp_files.push(temp_file);
+            let temp_path = temp_file.into_temp_path();
+            temp_paths.push(temp_path);
         }
-        merge_tempfiles(temp_files, &args)?;
+        merge_tempfiles(temp_paths, &args)?;
     } else {
         info!("running in entirely in‑memory mode.");
         let mut output: Box<dyn Write> = match args.out_file.clone() {
