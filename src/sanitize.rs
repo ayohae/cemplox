@@ -1,39 +1,39 @@
-/// sanitize mod
-/// sanitize a word in the wordlist, then keep original and sanitized word
-pub fn sanitize_word(word: &str) -> Vec<String> {
-    let mut sanitized_word = String::new();
-    let mut in_parentheses = false;
-
+/// sanitize words in the wordlist, get rid of special chars and spaces and strip but keep original
+/// just in case
+pub fn stream(word: &str) -> impl Iterator<Item = String> {
+    let mut sanitized = String::new();
+    let mut in_paren = false;
     for c in word.chars() {
         if c == '(' {
-            in_parentheses = true;
+            in_paren = true;
         } else if c == ')' {
-            in_parentheses = false;
-        } else if !in_parentheses {
-            sanitized_word.push(c.to_ascii_lowercase());
+            in_paren = false;
+        } else if !in_paren {
+            sanitized.push(c.to_ascii_lowercase());
         }
     }
 
-    // charset to strip
-    let special_chars: Vec<char> = "•!@#$%^&*()-_=+[]{}|;:'\",.<>/?`~\\     ".chars().collect();
-    let mut stripped_sanitized = String::new();
-    for c in sanitized_word.chars() {
-        if !special_chars.contains(&c) {
-            stripped_sanitized.push(c);
+    // characters to strip
+    let special: &[char] = &[
+        '•','!','@','#','$','%','^','&','*','(',')','-','_','=', '+','[',']','{','}','|',';',
+        ':','\'','"',',','.','<','>','/','?','`','~','\\',' ',
+    ];
+    let mut stripped = String::new();
+    for c in sanitized.chars() {
+        if !special.contains(&c) {
+            stripped.push(c);
         }
     }
-    let stripped_sanitized = stripped_sanitized.trim().to_string();
-    let sanitized_word = sanitized_word.trim().to_string();
 
-    let mut results = vec![];
+    let clean = stripped.trim().to_string();
+    let orig  = sanitized.trim().to_string();
 
-    if stripped_sanitized.len() >= 2 && stripped_sanitized.len() <= 16 {
-        results.push(stripped_sanitized.clone());
+    let mut out = Vec::new();
+    if clean.len() >= 2 && clean.len() <= 16 {
+        out.push(clean.clone());
     }
-
-    if stripped_sanitized != sanitized_word && sanitized_word.len() >= 2 && sanitized_word.len() <= 16 {
-        results.push(sanitized_word);
+    if orig != clean && orig.len() >= 2 && orig.len() <= 16 {
+        out.push(orig);
     }
-
-    results
+    out.into_iter()
 }

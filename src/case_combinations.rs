@@ -1,17 +1,18 @@
-/// case transforms module
-use rayon::prelude::*;
-/// returns all potential case combinations for input
-pub fn case_combinations(word: &str) -> Vec<String> {
-    let mut results = vec![String::new()];
+/// gen every combination of case (upper/lower) transformations in the word
+pub fn stream_cases(word: &str) -> impl Iterator<Item = String> {
+    // start with a single empty base
+    let mut combos = vec![String::new()];
     for ch in word.chars() {
-        let new_combinations: Vec<String> = results.par_iter()
+        combos = combos
+            .into_iter()
             .flat_map(|base| {
-                let lower = format!("{}{}", base, ch.to_lowercase());
-                let upper = format!("{}{}", base, ch.to_uppercase());
+                let mut lower = base.clone();
+                lower.push(ch.to_ascii_lowercase());
+                let mut upper = base;
+                upper.push(ch.to_ascii_uppercase());
                 vec![lower, upper]
             })
             .collect();
-        results = new_combinations;
     }
-    results
+    combos.into_iter()
 }

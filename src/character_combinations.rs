@@ -1,117 +1,94 @@
-/// character combinations module
-/// length and count modes
-/// insert, prepend, append modes
+use std::collections::{HashSet, VecDeque};
 
+/// add characters at various places in the word. charset modified by -C
 
-use dashmap::DashMap;
-use std::collections::VecDeque;
-use rayon::prelude::*;
-
-/// length mode generator
-pub fn length_character_combinations(
+/// length-based. add characters up to a max length
+pub fn stream_length(
     word: &str,
     chars: &str,
-    min_len: usize,
-    max_len: usize,
-    append: bool,
-    prepend: bool,
-    insert: bool,
-) -> Vec<String> {
-    let memo: DashMap<String, Vec<String>> = DashMap::new();
-    if let Some(cached) = memo.get(word) {
-        return cached.clone();
+    min: usize,
+    max: usize,
+    do_append: bool,
+    do_prepend: bool,
+    do_insert: bool,
+) -> impl Iterator<Item = String> {
+    // Track seen to avoid duplicates
+    let mut seen: HashSet<String> = HashSet::new();
+    let mut queue: VecDeque<String> = VecDeque::new();
+
+    // Initialize
+    if word.len() <= max {
+        seen.insert(word.to_string());
+        queue.push_back(word.to_string());
     }
+    let char_vec: Vec<char> = chars.chars().collect();
     let mut results = Vec::new();
-    if word.len() >= min_len && word.len() <= max_len {
-        results.push(word.to_string());
-    }
-    let mut queue = VecDeque::new();
-    queue.push_back(word.to_string());
-    let chars_vec: Vec<char> = chars.chars().collect();
-    while let Some(current_word) = queue.pop_front() {
-        let new_combinations: Vec<String> = chars_vec.par_iter()
-            .flat_map(|&ch| {
-                let mut local_results = Vec::new();
-                if append {
-                    let appended = format!("{}{}", current_word, ch);
-                    if appended.len() <= max_len && !memo.contains_key(&appended) {
-                        if appended.len() >= min_len {
-                            local_results.push(appended.clone());
-                        }
-                        local_results.push(appended);
+
+    while let Some(cur) = queue.pop_front() {
+        if cur.len() >= min && cur.len() <= max {
+            results.push(cur.clone());
+        }
+        for &ch in &char_vec {
+            if do_append {
+                let cand = format!("{}{}", cur, ch);
+                if cand.len() <= max && seen.insert(cand.clone()) {
+                    queue.push_back(cand);
+                }
+            }
+            if do_prepend {
+                let cand = format!("{}{}", ch, cur);
+                if cand.len() <= max && seen.insert(cand.clone()) {
+                    queue.push_back(cand);
+                }
+            }
+            if do_insert {
+                for i in 0..=cur.len() {
+                    let mut cand = cur.clone();
+                    cand.insert(i, ch);
+                    if cand.len() <= max && seen.insert(cand.clone()) {
+                        queue.push_back(cand);
                     }
                 }
-                if prepend {
-                    let prepended = format!("{}{}", ch, current_word);
-                    if prepended.len() <= max_len && !memo.contains_key(&prepended) {
-                        if prepended.len() >= min_len {
-                            local_results.push(prepended.clone());
-                        }
-                        local_results.push(prepended);
-                    }
-                }
-                if insert {
-                    for i in 0..=current_word.len() {
-                        let mut new_word = current_word.clone();
-                        new_word.insert(i, ch);
-                        if new_word.len() <= max_len && !memo.contains_key(&new_word) {
-                            if new_word.len() >= min_len {
-                                local_results.push(new_word.clone());
-                            }
-                            local_results.push(new_word);
-                        }
-                    }
-                }
-                local_results
-            })
-            .collect();
-        for new_word in new_combinations {
-            if !memo.contains_key(&new_word) {
-                results.push(new_word.clone());
-                queue.push_back(new_word.clone());
-                memo.insert(new_word.clone(), vec![new_word.clone()]);
             }
         }
     }
-    memo.insert(word.to_string(), results.clone());
-    results
+    results.into_iter()
 }
 
-/// count mode generator
-pub fn count_character_combinations(
+/// count based. add a count of append, prepend, or inserts of characters
+pub fn stream_count(
     word: &str,
     chars: &str,
-    append: usize,
-    prepend: usize,
-    insert: usize,
-) -> Vec<String> {
+    cnt_append: usize,
+    cnt_prepend: usize,
+    cnt_insert: usize,
+) -> impl Iterator<Item = String> {
     let mut results = Vec::new();
-    let chars_vec: Vec<char> = chars.chars().collect();
-    let mut queue = VecDeque::new();
-    queue.push_back((word.to_string(), append, prepend, insert));
-    while let Some((current_word, current_append, current_prepend, current_insert)) = queue.pop_front() {
-        results.push(current_word.clone());
-        if current_append > 0 {
-            for &ch in &chars_vec {
-                let appended = format!("{}{}", current_word, ch);
-                queue.push_back((appended, current_append - 1, current_prepend, current_insert));
+    let mut queue: VecDeque<(String, usize, usize, usize)> = VecDeque::new();
+    queue.push_back((word.to_string(), cnt_append, cnt_prepend, cnt_insert));
+    let char_vec: Vec<char> = chars.chars().collect();
+
+    while let Some((cur, a, p, i)) = queue.pop_front() {
+        results.push(cur.clone());
+        if a > 0 {
+            for &ch in &char_vec {
+                queue.push_back((format!("{}{}", cur, ch), a - 1, p, i));
             }
         }
-        if current_prepend > 0 {
-            for &ch in &chars_vec {
-                let prepended = format!("{}{}", ch, current_word);
-                queue.push_back((prepended, current_append, current_prepend - 1, current_insert));
+        if p > 0 {
+            for &ch in &char_vec {
+                queue.push_back((format!("{}{}", ch, cur), a, p - 1, i));
             }
         }
-        if current_insert > 0 {
-            for &ch in &chars_vec {
-                for i in 0..=current_word.len() {
-                    let mut inserted = current_word.clone();
-                    inserted.insert(i, ch);
-                    queue.push_back((inserted, current_append, current_prepend, current_insert - 1));
+        if i > 0 {
+            for &ch in &char_vec {
+                for pos in 0..=cur.len() {
+                    let mut cand = cur.clone();
+                    cand.insert(pos, ch);
+                    queue.push_back((cand, a, p, i - 1));
                 }
             }
         }
     }
-    results
+    results.into_iter()
 }
