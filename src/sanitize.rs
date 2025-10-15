@@ -29,10 +29,10 @@ pub fn stream(word: &str) -> impl Iterator<Item = String> {
     let orig  = sanitized.trim().to_string();
 
     let mut out = Vec::new();
-    if clean.len() >= 2 && clean.len() <= 16 {
+    if clean.len() >= 2 && clean.len() <= 28 {
         out.push(clean.clone());
     }
-    if orig != clean && orig.len() >= 2 && orig.len() <= 16 {
+    if orig != clean && orig.len() >= 2 && orig.len() <= 28 {
         out.push(orig);
     }
     out.into_iter()
