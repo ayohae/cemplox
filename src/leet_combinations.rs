@@ -1,8 +1,7 @@
 /// gen every combination of leet (a-->@) transformations in the word
 pub fn stream_leet(word: &str) -> impl Iterator<Item = String> {
     let mappings = [
-        ('a','4'), ('e','3'), ('i','1'), ('o','0'),
-        ('s','5'), ('t','7'),
+        ('a','4'), ('a','@'), ('e','3'), ('i','1'), ('i','!'), ('o','0'), ('s','5'), ('s','$'), ('t','7'), ('t','+'), ('g','6'), ('g','9'), ('b','8'), ('z','2'), ('l','1'), ('q','9'), ('h','#')
     ];
     // start with the original
     let mut results = vec![word.to_string()];
