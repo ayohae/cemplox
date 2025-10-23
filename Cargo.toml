@@ -6,11 +6,9 @@ edition = "2021"
 [dependencies]
 clap = { version = "4.5.35", features = ["derive"] }
 rayon = "1.10"
-dashmap = "6.1.0"
 anyhow = "1.0.97"
 env_logger = "0.11.8"
 log = "0.4.27"
 num_cpus = "1.16.0"
-tempfile = "3.19.1"
 crossbeam-channel = "0.5.13"
 memmap2 = "0.9.5"
