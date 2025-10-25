@@ -52,7 +52,7 @@ where
     F: FnMut(String),
 {
     if options.case {
-        for variant in case_combinations::stream_cases(&word) {
+        for variant in case_combinations::stream_cases(&word, options.case_max_changes) {
             visit(variant);
         }
     } else {
@@ -64,7 +64,7 @@ where
     F: FnMut(String),
 {
     if options.leet {
-        for variant in leet_combinations::stream_leet(&word) {
+        for variant in leet_combinations::stream_leet(&word, options.leet_max_substitutions) {
             visit(variant);
         }
     } else {

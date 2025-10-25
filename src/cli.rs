@@ -22,6 +22,12 @@ pub struct Cli {
     pub max_threads: usize,
     #[arg(short = 'L', long, default_value = "info")]
     pub log_level: String,
+    #[arg(long)]
+    pub max_rss_mb: Option<u64>,
+    #[arg(long)]
+    pub case_max_changes: Option<usize>,
+    #[arg(long)]
+    pub leet_max_substitutions: Option<usize>,
 }
 
 #[derive(Subcommand, Debug)]

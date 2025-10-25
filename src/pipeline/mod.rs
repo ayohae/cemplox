@@ -2,6 +2,7 @@ mod metrics;
 mod options;
 mod stages;
 mod worker;
+mod watchdog;
 
 use crate::cli::Cli;
 use anyhow::{Context, Result};
@@ -36,6 +37,7 @@ pub fn run(cli: Cli) -> Result<()> {
 
     let options = Arc::new(PipelineOptions::from_cli(&cli));
     let metrics = Arc::new(Metrics::default());
+    let watchdog_guard = cli.max_rss_mb.map(watchdog::spawn);
 
     let input_file = File::open(&cli.file)
         .with_context(|| format!("failed to open input file {}", cli.file))?;
@@ -68,7 +70,11 @@ pub fn run(cli: Cli) -> Result<()> {
         );
 
     drop(sender);
-    writer_thread.join().expect("writer thread panicked")?;
+    let writer_result = writer_thread.join().expect("writer thread panicked");
+    if let Some(guard) = watchdog_guard {
+        guard.stop();
+    }
+    writer_result?;
 
     let elapsed = start.elapsed();
     info!(

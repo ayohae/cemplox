@@ -7,6 +7,8 @@ pub struct PipelineOptions {
     pub leet: bool,
     pub chars: String,
     pub command: PipelineCommand,
+    pub case_max_changes: Option<usize>,
+    pub leet_max_substitutions: Option<usize>,
 }
 
 impl PipelineOptions {
@@ -33,6 +35,8 @@ impl PipelineOptions {
             leet: cli.leet,
             chars: cli.chars.clone(),
             command,
+            case_max_changes: cli.case_max_changes,
+            leet_max_substitutions: cli.leet_max_substitutions,
         }
     }
 }

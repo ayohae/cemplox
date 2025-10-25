@@ -1,16 +1,16 @@
 /// gen every combination of leet (a-->@) transformations in the word
-pub fn stream_leet(word: &str) -> impl Iterator<Item = String> {
-    LeetPermutations::new(word)
+pub fn stream_leet(word: &str, max_substitutions: Option<usize>) -> impl Iterator<Item = String> {
+    LeetPermutations::new(word, max_substitutions)
 }
-
 struct LeetPermutations {
     options: Vec<Vec<char>>,
     indices: Vec<usize>,
     finished: bool,
+    max_substitutions: Option<usize>,
 }
 
 impl LeetPermutations {
-    fn new(word: &str) -> Self {
+    fn new(word: &str, max_substitutions: Option<usize>) -> Self {
         let mut options = Vec::new();
         for ch in word.chars() {
             let mut choices = Vec::new();
@@ -23,11 +23,7 @@ impl LeetPermutations {
             options.push(choices);
         }
         let indices = vec![0; options.len()];
-        Self {
-            options,
-            indices,
-            finished: false,
-        }
+        Self { options, indices, finished: false, max_substitutions }
     }
 
     fn advance(&mut self) {
@@ -54,17 +50,25 @@ impl Iterator for LeetPermutations {
     type Item = String;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if self.finished {
-            return None;
+        while !self.finished {
+            let mut out = String::with_capacity(self.options.len());
+            let mut subs = 0usize;
+            for (idx, choices) in self.indices.iter().zip(&self.options) {
+                let choice_idx = *idx;
+                if choice_idx > 0 {
+                    subs += 1;
+                }
+                out.push(choices[choice_idx]);
+            }
+            let allowed = self
+                .max_substitutions
+                .map_or(true, |limit| subs <= limit);
+            self.advance();
+            if allowed {
+                return Some(out);
+            }
         }
-
-        let mut out = String::with_capacity(self.options.len());
-        for (idx, choices) in self.indices.iter().zip(&self.options) {
-            out.push(choices[*idx]);
-        }
-
-        self.advance();
-        Some(out)
+        None
     }
 }
 
@@ -93,7 +97,7 @@ mod tests {
 
     #[test]
     fn includes_expected_leet_variants() {
-        let variants: Vec<String> = stream_leet("leet").collect();
+        let variants: Vec<String> = stream_leet("leet", None).collect();
         let unique: HashSet<&String> = variants.iter().collect();
         assert_eq!(variants.len(), unique.len());
         assert!(unique.iter().any(|v| v.as_str() == "leet"));
@@ -103,7 +107,14 @@ mod tests {
 
     #[test]
     fn handles_empty_string() {
-        let variants: Vec<String> = stream_leet("").collect();
+        let variants: Vec<String> = stream_leet("", None).collect();
         assert_eq!(variants, vec!["".to_string()]);
+    }
+
+    #[test]
+    fn respects_substitution_limit() {
+        let variants: Vec<String> = stream_leet("leet", Some(1)).collect();
+        assert!(variants.contains(&"leet".to_string()));
+        assert!(!variants.contains(&"l337".to_string()));
     }
 }
