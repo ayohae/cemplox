@@ -19,7 +19,7 @@ pub fn stream(word: &str) -> impl Iterator<Item = String> {
 
 fn meets_length(value: &str) -> bool {
     let len = value.len();
-    len >= 2 && len <= 28
+    len >= 2 && len <= 64
 }
 
 fn strip_bracketed(input: &str) -> String {
