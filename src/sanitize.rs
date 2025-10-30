@@ -3,9 +3,21 @@ pub fn stream(word: &str) -> impl Iterator<Item = String> {
     if base.is_empty() {
         return Vec::new().into_iter();
     }
-    let final_text = collapse_spaces(&trim_metadata_suffix(&base.to_ascii_lowercase()));
-    let orig = final_text.trim().to_string();
-    let clean: String = orig.chars().filter(|c| c.is_ascii_alphanumeric()).collect();
+    let lower_base = base.to_ascii_lowercase();
+    let final_text = collapse_spaces(&trim_metadata_suffix(&lower_base));
+    let trimmed_len = if final_text.is_empty() {
+        0
+    } else {
+        final_text.split_whitespace().count()
+    };
+    let mut original_tokens: Vec<&str> = base.split_whitespace().collect();
+    original_tokens.truncate(trimmed_len);
+    let trimmed_original = original_tokens.join(" ");
+    let orig = trimmed_original.trim().to_string();
+    let clean: String = final_text
+        .chars()
+        .filter(|c| c.is_ascii_alphanumeric())
+        .collect();
 
     let mut out = Vec::new();
     if meets_length(&clean) {
